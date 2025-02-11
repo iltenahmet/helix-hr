@@ -85,18 +85,37 @@ button {
 }
 
 .workspace {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
 }
 
-.workspace textarea {
-  flex-grow: 1;
+.sequence-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.sequence-step {
+  padding: 15px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  background: #f8f8f8;
+}
+
+.sequence-step strong {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+}
+
+.sequence-textarea {
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 50px;
   border: 1px solid #ccc;
   padding: 10px;
-  font-size: 16px;
-  background: #222; /* Darker background */
-  color: white;
+  font-size: 14px;
+  resize: vertical;
+  background: white;
 }
