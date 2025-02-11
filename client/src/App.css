@@ -1,42 +1,102 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+.app-container {
+  display: flex;
+  height: 100vh;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.chatbox-container {
+  width: 40%;
+  border-right: 2px solid #ccc;
+  padding: 20px;
+  overflow-y: auto;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.workspace-container {
+  width: 60%;
+  padding: 20px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
-.card {
-  padding: 2em;
+.chatbox input {
+  width: calc(100% - 22px); /* Adjust for padding */
+  padding: 10px;
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
-.read-the-docs {
-  color: #888;
+.chatbox button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  margin-top: 5px;
+  border-radius: 4px;
+}
+
+
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+.message {
+  padding: 8px;
+  margin: 5px;
+  border-radius: 5px;
+  max-width: 80%;
+}
+
+.message.user {
+  background-color: #007bff;
+  color: white;
+  align-self: flex-end;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.message.ai {
+  background-color: #333;
+  color: white;
+  align-self: flex-start;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  width: calc(100% - 20px);
+}
+
+button {
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.workspace {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.workspace textarea {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 16px;
+  background: #222; /* Darker background */
+  color: white;
 }
