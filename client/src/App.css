@@ -1,38 +1,68 @@
+/* 🌙 General Styling for Dark Mode */
+body {
+  background-color: #0d1117;
+  color: #c9d1d9;
+  font-family: Arial, sans-serif;
+}
+
+/* 📦 Main Layout */
 .app-container {
   display: flex;
   height: 100vh;
+  width: 100vw;
 }
 
+/* 💬 Chatbox Styling */
 .chatbox-container {
-  width: 40%;
-  border-right: 2px solid #ccc;
+  flex: 0 0 30%; /* Chatbox takes 30% width */
+  max-width: 30%;
+  border-right: 2px solid #30363d;
   padding: 20px;
-  overflow-y: auto;
-}
-
-.workspace-container {
-  width: 60%;
-  padding: 20px;
-}
-
-.chatbox {
+  background: #161b22; /* Dark grey background */
   display: flex;
   flex-direction: column;
-  height: 100%;
 }
 
-.chatbox input {
-  width: calc(100% - 22px); /* Adjust for padding */
+/* 💬 Messages */
+.messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-bottom: 10px;
+}
+
+/* 🟢 User Messages */
+.message.user {
+  background-color: #238636;
+  color: white;
   padding: 10px;
-  margin-top: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 10px;
+  align-self: flex-end;
 }
 
+/* ⚫ AI Messages */
+.message.ai {
+  background-color: #30363d;
+  color: #c9d1d9;
+  padding: 10px;
+  border-radius: 10px;
+  align-self: flex-start;
+}
+
+/* 📝 Chat Input */
+.chatbox input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+  background-color: #21262d;
+  color: #c9d1d9;
+}
+
+/* 🟩 Send Button */
 .chatbox button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #238636;
   color: white;
   border: none;
   cursor: pointer;
@@ -40,82 +70,54 @@
   border-radius: 4px;
 }
 
-
-.messages {
-  flex-grow: 1;
-  overflow-y: auto;
-  margin-bottom: 10px;
+.chatbox button:hover {
+  background-color: #2ea043;
 }
 
-.message {
-  padding: 8px;
-  margin: 5px;
-  border-radius: 5px;
-  max-width: 80%;
-}
-
-.message.user {
-  background-color: #007bff;
-  color: white;
-  align-self: flex-end;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.message.ai {
-  background-color: #333;
-  color: white;
-  align-self: flex-start;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-input {
-  padding: 10px;
-  border: 1px solid #ccc;
-  width: calc(100% - 20px);
-}
-
-button {
-  padding: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-.workspace {
+/* 📄 Workspace Styling */
+.workspace-container {
+  flex: 1;
   padding: 20px;
-  background: #fff;
-  border-radius: 10px;
+  background: #0d1117;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 📑 Sequence Container */
 .sequence-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
+/* 📌 Individual Sequence Step */
 .sequence-step {
   padding: 15px;
-  border: 2px solid #ccc;
+  border: 2px solid #30363d;
   border-radius: 10px;
-  background: #f8f8f8;
+  background: #161b22;
+  color: #c9d1d9;
+  width: 100%;
 }
 
+/* 🔷 Step Label */
 .sequence-step strong {
   display: block;
   margin-bottom: 5px;
   font-size: 16px;
+  font-weight: bold;
+  color: #58a6ff; /* Blue step labels */
 }
 
+/* ✏️ Textarea inside sequence step */
 .sequence-textarea {
   width: 100%;
-  height: auto;
-  min-height: 50px;
-  border: 1px solid #ccc;
+  min-height: 70px;
+  border: 1px solid #30363d;
   padding: 10px;
   font-size: 14px;
   resize: vertical;
-  background: white;
+  background: #21262d;
+  color: #c9d1d9;
+  border-radius: 5px;
 }

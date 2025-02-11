@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": r"http://localhost:*"}})
+CORS(app, supports_credentials=True)
 
 # Sample structured sequence data (now directly an array)
 sequence_data = [
@@ -38,4 +38,4 @@ def update_sequence():
         return jsonify({"error": "Invalid data format. Expected a list."}), 400  # Error handling
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8080)

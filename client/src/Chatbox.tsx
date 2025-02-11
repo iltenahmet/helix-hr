@@ -17,7 +17,7 @@ const Chatbox = () => {
     setMessages([...messages, userMessage]); // Update local state
 
     try {
-      const response = await axios.post("http://localhost:5000/api/chat", { message: input });
+      const response = await axios.post("http://localhost:8080/api/chat", { message: input });
 
       const aiMessage: Message = { sender: "ai", text: response.data.message };
       setMessages([...messages, userMessage, aiMessage]);

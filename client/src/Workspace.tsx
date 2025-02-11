@@ -12,7 +12,7 @@ const Workspace = () => {
   useEffect(() => {
     const fetchSequence = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/sequence");
+        const response = await axios.get("http://localhost:8080/api/sequence");
         setSequence(response.data);
       } catch (error) {
         console.error("Error fetching sequence:", error);
@@ -29,7 +29,7 @@ const Workspace = () => {
     setSequence(updatedSequence);
 
     try {
-      await axios.post("http://localhost:5000/api/sequence", updatedSequence);
+      await axios.post("http://localhost:8080/api/sequence", updatedSequence);
       console.log("Sequence updated");
     } catch (error) {
       console.error("Error updating sequence:", error);
