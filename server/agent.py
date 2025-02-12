@@ -9,6 +9,7 @@ import os
 
 load_dotenv()
 open_ai_api_key = os.getenv("OPENAI_API_KEY")
+conversation_started = False
 
 llm = ChatOpenAI(model="gpt-4o", temperature=0, api_key=open_ai_api_key)
 memory = MemorySaver() # TODO: Use a database to store memory
@@ -25,13 +26,25 @@ graph_builder.add_edge(START, "chatbot")
 graph_builder.add_edge("chatbot", END)
 graph = graph_builder.compile(checkpointer=memory)
 
+system_message = {"role": "system", "content": "You are an AI assistant specializing in HR recruitment."}
+
 def stream_graph_updates(user_input: str) -> str:
+    global conversation_started
     config = {"configurable": {"thread_id": "1"}}
+    user_message = {"role": "user", "content": user_input}
+
+    if conversation_started == False:
+        messages = [system_message, user_message]
+        conversation_started = True
+    else:
+        messages = [user_message]
+
     events = graph.stream(
-        {"messages": [{"role": "user", "content": user_input}]},
+        {"messages": messages},
         config,
-        stream_mode="values")
-    
+        stream_mode="values"
+    )
+
     last_message = None
     for event in events:
         last_message = event["messages"][-1].content
