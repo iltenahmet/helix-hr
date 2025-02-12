@@ -1,18 +1,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
-interface SequenceStep {
-  id: number;
-  text: string;
+const socket = io("http://localhost:8080");
+
+interface WorkspaceProps {
+  sequence: any[];
 }
 
-const Workspace = ({ sequence }: { sequence: any[] }) => {
-	const [localSequence, setLocalSequence] = useState<SequenceStep[]>([]);
-
-	useEffect(() => {
-		setLocalSequence(sequence);
-	}, [sequence]);
-
+function Workspace({ sequence }: WorkspaceProps) {
+  const [localSequence, setLocalSequence] = useState<string[]>(sequence);
 
   useEffect(() => {
     const fetchSequence = async () => {
@@ -25,11 +22,22 @@ const Workspace = ({ sequence }: { sequence: any[] }) => {
     };
 
     fetchSequence();
+
+    // Listen for sequence updates via SocketIO
+    socket.on("update_sequence", (updatedSequence: string[]) => {
+      console.log("Received updated sequence from SocketIO:", updatedSequence);
+      setLocalSequence(updatedSequence);
+    });
+
+    // Cleanup socket listener
+    return () => {
+      socket.off("update_sequence");
+    };
   }, []);
 
-  const updateSequence = async (id: number, newText: string) => {
-    const updatedSequence = localSequence.map((step) =>
-      step.id === id ? { ...step, text: newText } : step
+  const updateSequence = async (index: number, newText: string) => {
+    const updatedSequence = localSequence.map((stepText, i) =>
+      i === index ? newText : stepText
     );
     setLocalSequence(updatedSequence);
 
@@ -45,12 +53,12 @@ const Workspace = ({ sequence }: { sequence: any[] }) => {
     <div className="workspace">
       <h2>Sequence</h2>
       <div className="sequence-container">
-        {localSequence.map((step, index) => (
-          <div key={step.id} className="sequence-step">
+        {localSequence.map((stepText, index) => (
+          <div key={index} className="sequence-step">
             <strong>Step {index + 1}:</strong>
             <textarea
-              value={step.text}
-              onChange={(e) => updateSequence(step.id, e.target.value)}
+              value={stepText}
+              onChange={(e) => updateSequence(index, e.target.value)}
               className="sequence-textarea"
             />
           </div>

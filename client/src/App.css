@@ -1,56 +1,68 @@
-/* 🌙 General Styling for Dark Mode */
 body {
   background-color: #0d1117;
   color: #c9d1d9;
   font-family: Arial, sans-serif;
-}
-
-/* 📦 Main Layout */
-.app-container {
+  margin: 0;
+  padding: 0;
   display: flex;
   height: 100vh;
-  width: 100vw;
 }
 
-/* 💬 Chatbox Styling */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.chatbox {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
 .chatbox-container {
-  flex: 0 0 30%; /* Chatbox takes 30% width */
+  flex: 0 0 30%;
   max-width: 30%;
   border-right: 2px solid #30363d;
   padding: 20px;
-  background: #161b22; /* Dark grey background */
+  background: #161b22;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
-/* 💬 Messages */
 .messages {
   flex-grow: 1;
   overflow-y: auto;
-  margin-bottom: 10px;
+  max-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 50px;
 }
 
-/* 🟢 User Messages */
+.message {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 80%;
+  margin: 5px 0;
+}
+
 .message.user {
   background-color: #238636;
   color: white;
-  padding: 10px;
-  border-radius: 10px;
   align-self: flex-end;
 }
 
-/* ⚫ AI Messages */
 .message.ai {
   background-color: #30363d;
   color: #c9d1d9;
-  padding: 10px;
-  border-radius: 10px;
   align-self: flex-start;
 }
 
-/* 📝 Chat Input */
 .chatbox input {
-  width: 100%;
   padding: 10px;
   border: 1px solid #30363d;
   border-radius: 4px;
@@ -58,15 +70,12 @@ body {
   color: #c9d1d9;
 }
 
-/* 🟩 Send Button */
 .chatbox button {
-  width: 100%;
   padding: 10px;
   background-color: #238636;
   color: white;
   border: none;
   cursor: pointer;
-  margin-top: 5px;
   border-radius: 4px;
 }
 
@@ -74,23 +83,25 @@ body {
   background-color: #2ea043;
 }
 
-/* 📄 Workspace Styling */
 .workspace-container {
   flex: 1;
   padding: 20px;
   background: #0d1117;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
-/* 📑 Sequence Container */
 .sequence-container {
   display: flex;
   flex-direction: column;
   gap: 15px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-right: 10px;
 }
 
-/* 📌 Individual Sequence Step */
 .sequence-step {
   padding: 15px;
   border: 2px solid #30363d;
@@ -98,18 +109,19 @@ body {
   background: #161b22;
   color: #c9d1d9;
   width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
-/* 🔷 Step Label */
 .sequence-step strong {
   display: block;
   margin-bottom: 5px;
   font-size: 16px;
   font-weight: bold;
-  color: #58a6ff; /* Blue step labels */
+  color: #58a6ff;
 }
 
-/* ✏️ Textarea inside sequence step */
 .sequence-textarea {
   width: 100%;
   min-height: 70px;
