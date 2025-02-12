@@ -167,3 +167,5 @@ yarn-debug.log
 
 # TypeScript
 *.tsbuildinfo
+
+.vscode

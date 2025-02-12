@@ -1,14 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:8080");
 
 interface Message {
   sender: "user" | "ai";
   text: string;
 }
 
-const Chatbox = () => {
+const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+
+  useEffect(() => {
+    socket.on("update_sequence", (sequence) => {
+      onSequenceUpdate(sequence); // Pass sequence to parent component
+    });
+    return () => {
+      socket.off("update_sequence");
+    };
+  }, []);
 
   const sendMessage = async () => {
     if (!input.trim()) return;

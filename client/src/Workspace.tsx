@@ -6,14 +6,19 @@ interface SequenceStep {
   text: string;
 }
 
-const Workspace = () => {
-  const [sequence, setSequence] = useState<SequenceStep[]>([]);
+const Workspace = ({ sequence }: { sequence: any[] }) => {
+	const [localSequence, setLocalSequence] = useState<SequenceStep[]>([]);
+
+	useEffect(() => {
+		setLocalSequence(sequence);
+	}, [sequence]);
+
 
   useEffect(() => {
     const fetchSequence = async () => {
       try {
         const response = await axios.get("http://localhost:8080/api/sequence");
-        setSequence(response.data);
+        setLocalSequence(response.data);
       } catch (error) {
         console.error("Error fetching sequence:", error);
       }
@@ -23,10 +28,10 @@ const Workspace = () => {
   }, []);
 
   const updateSequence = async (id: number, newText: string) => {
-    const updatedSequence = sequence.map((step) =>
+    const updatedSequence = localSequence.map((step) =>
       step.id === id ? { ...step, text: newText } : step
     );
-    setSequence(updatedSequence);
+    setLocalSequence(updatedSequence);
 
     try {
       await axios.post("http://localhost:8080/api/sequence", updatedSequence);
@@ -40,7 +45,7 @@ const Workspace = () => {
     <div className="workspace">
       <h2>Sequence</h2>
       <div className="sequence-container">
-        {sequence.map((step, index) => (
+        {localSequence.map((step, index) => (
           <div key={step.id} className="sequence-step">
             <strong>Step {index + 1}:</strong>
             <textarea
