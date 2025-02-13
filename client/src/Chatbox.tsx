@@ -9,19 +9,17 @@ interface Message {
   text: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
-  // Track status: idle, generating, or editing
   const [status, setStatus] = useState<"idle" | "generating" | "editing">("idle");
 
   useEffect(() => {
-    // This existing event updates the parent with the final sequence
     socket.on("update_sequence", (sequence) => {
       onSequenceUpdate(sequence);
     });
 
-    // Show "generating" or "editing" in the chatbox
     socket.on("sequence_status", (data) => {
       if (data.status === "generating") {
         setStatus("generating");
@@ -30,20 +28,15 @@ const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void })
       }
     });
 
-    // Once done generating, go back to idle
     socket.on("sequence_done", (data) => {
       onSequenceUpdate(data.sequence);
       setStatus("idle");
     });
 
-    // Once done editing, go back to idle
     socket.on("sequence_edited", (data) => {
       onSequenceUpdate(data.updatedSequence);
       setStatus("idle");
     });
-
-    // IMPORTANT: we do NOT listen for "sequence_step" here,
-    // so the Chatbox never sees partial steps.
 
     return () => {
       socket.off("update_sequence");
@@ -75,14 +68,12 @@ const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void })
   return (
     <div className="chatbox">
       <div className="messages">
-        {/* Existing user/AI messages */}
         {messages.map((msg, index) => (
           <div key={index} className={`message ${msg.sender}`}>
             {msg.text}
           </div>
         ))}
 
-        {/* If generating or editing, show a single status line */}
         {status === "generating" && (
           <div className="message system">Generating sequence...</div>
         )}
@@ -91,6 +82,7 @@ const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void })
         )}
       </div>
 
+      <div className="input-container">
         <input
           type="text"
           placeholder="Type a message..."
@@ -100,6 +92,7 @@ const Chatbox = ({ onSequenceUpdate }: { onSequenceUpdate: (seq: any) => void })
         />
         <button onClick={sendMessage}>Send</button>
       </div>
+    </div>
   );
 };
 

@@ -5,7 +5,7 @@ import { io } from "socket.io-client";
 const socket = io("http://localhost:8080");
 
 interface WorkspaceProps {
-  sequence: any[];
+  sequence: string[];
 }
 
 function Workspace({ sequence }: WorkspaceProps) {

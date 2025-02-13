@@ -1,18 +1,56 @@
 body {
-  background-color: #0d1117;
-  color: #c9d1d9;
+  background-color: #121212;
+  color: #FFFFFF;
   font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  display: flex;
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-container {
   display: flex;
+  flex-direction: column;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+}
+
+.auth-buttons {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
+.auth-buttons button {
+  padding: 8px 12px;
+  background-color: #6200EE ;
+  color: white;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.auth-buttons button:hover {
+  background-color: #3700B3;
+}
+
+.welcome-message {
+  padding: 8px 12px;
+  color: #FFFFFF;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.content-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  flex: 1;
+  margin-top: 50px; 
+  border-top: 2px solid #03DAC6;
 }
 
 .chatbox {
@@ -25,22 +63,22 @@ body {
 .chatbox-container {
   flex: 0 0 30%;
   max-width: 30%;
-  border-right: 2px solid #30363d;
+  border-right: 2px solid #03DAC6;
   padding: 20px;
-  background: #161b22;
+  background: #1E1E1E;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
 .messages {
-  flex-grow: 1;
+  flex: 1;
   overflow-y: auto;
-  max-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding-bottom: 50px;
+  max-height: 90vh;
 }
 
 .message {
@@ -51,42 +89,51 @@ body {
 }
 
 .message.user {
-  background-color: #238636;
+  background-color: #6200EE;
   color: white;
   align-self: flex-end;
 }
 
 .message.ai {
-  background-color: #30363d;
-  color: #c9d1d9;
+  background-color: #03DAC6;
+  color: #FFFFFF;
   align-self: flex-start;
 }
 
 .chatbox input {
+  flex: 1;
   padding: 10px;
-  border: 1px solid #30363d;
+  border: 1px solid #03DAC6;
   border-radius: 4px;
-  background-color: #21262d;
-  color: #c9d1d9;
+  background-color: #1E1E1E;
+  color: #FFFFFF;
 }
 
 .chatbox button {
   padding: 10px;
-  background-color: #238636;
+  background-color: #6200EE;
   color: white;
-  border: none;
   cursor: pointer;
   border-radius: 4px;
 }
 
 .chatbox button:hover {
-  background-color: #2ea043;
+  background-color: #3700B3;
+}
+
+.input-container {
+  display: flex;
+  gap: 10px;
+  position: sticky;
+  bottom: 50px;
+  left: 20px;
+  right: 20px;
 }
 
 .workspace-container {
   flex: 1;
   padding: 20px;
-  background: #0d1117;
+  background: #121212;
   display: flex;
   flex-direction: column;
   overflow-x: hidden;
@@ -104,10 +151,10 @@ body {
 
 .sequence-step {
   padding: 15px;
-  border: 2px solid #30363d;
+  border: 2px solid #03DAC6;
   border-radius: 10px;
-  background: #161b22;
-  color: #c9d1d9;
+  background: #1E1E1E;
+  color: #FFFFFF;
   width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -125,11 +172,53 @@ body {
 .sequence-textarea {
   width: 100%;
   min-height: 70px;
-  border: 1px solid #30363d;
+  border: 1px solid #03DAC6;
   padding: 10px;
   font-size: 14px;
   resize: vertical;
-  background: #21262d;
-  color: #c9d1d9;
+  background: #1E1E1E;
+  color: #FFFFFF;
   border-radius: 5px;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1E1E1E;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.1);
+  z-index: 1000;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal input {
+  background-color: #1E1E1E;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  border: 1px solid #03DAC6;
+  border-radius: 4px;
+}
+
+.modal button {
+  padding: 10px;
+  background-color: #6200EE;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.modal button:hover {
+  background-color: #3700B3;
 }
