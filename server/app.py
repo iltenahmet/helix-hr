@@ -45,7 +45,9 @@ def chat():
 
     if not user_id and not is_guest:
         session["is_guest"] = True
+        is_guest = True
         session["user_id"] = "guest_" + str(uuid.uuid4())  # Temporary guest ID
+        user_id = session["user_id"]
     else:
         db = get_db_session()
         user_session = db.query(Session).filter_by(user_id=user_id).first()
@@ -102,9 +104,14 @@ def signup():
     )
     user.set_password(data["password"])
 
+
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    user = db.query(User).filter_by(username=data["username"]).first()
+    session["user_id"] = user.id
+
     db.close()
 
     return jsonify({"message": "Sign up successful", "username": user.username}), 201
