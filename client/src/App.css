@@ -42,6 +42,7 @@ body {
   color: #FFFFFF;
   border-radius: 4px;
   font-size: 14px;
+  margin: 0;
 }
 
 .content-container {
@@ -95,7 +96,7 @@ body {
 }
 
 .message.ai {
-  background-color: #03DAC6;
+  background-color: #008174;
   color: #FFFFFF;
   align-self: flex-start;
 }

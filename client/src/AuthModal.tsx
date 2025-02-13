@@ -5,7 +5,7 @@ interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAuthSuccess: (user: { username?: string; guest?: boolean }) => void;
-  isLogin: boolean; 
+  isLogin: boolean;
 }
 
 const AuthModal = ({ isOpen, onClose, onAuthSuccess, isLogin }: AuthModalProps) => {
@@ -21,7 +21,7 @@ const AuthModal = ({ isOpen, onClose, onAuthSuccess, isLogin }: AuthModalProps) 
   const handleSubmit = async () => {
     try {
       const url = isLogin ? "http://localhost:8080/login" : "http://localhost:8080/signup";
-      const response = await axios.post(url, formData);
+      const response = await axios.post(url, formData, { withCredentials: true });  // Add this
       console.log("auth success Response:", response.data.username);
       onAuthSuccess(response.data);
       onClose();

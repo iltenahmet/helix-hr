@@ -3,9 +3,10 @@ from flask_cors import CORS
 from agent import ask_agent, set_sequence, get_sequence
 from socketio_instance import socketio
 from sqlalchemy.orm import sessionmaker
-from model import get_db_engine, Base, User
+from model import get_db_engine, Base, User, Session, ChatHistory
 from dotenv import load_dotenv
 from os import getenv
+import uuid
 
 load_dotenv()
 app = Flask(__name__)
@@ -22,14 +23,49 @@ def get_db_session():
     return SessionLocal()
 
 
+# Socket.IO event handler for connection
+@socketio.on("connect")
+def handle_connect():
+    # Store the client's session ID in the Flask session
+    session["sid"] = request.sid
+    print("Client connected:", request.sid)
+
+
+# Socket.IO event handler for disconnection
+@socketio.on("disconnect")
+def handle_disconnect():
+    print("Client disconnected:", request.sid)
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     user_message = request.json.get("message", "")
-    ai_response = ask_agent(user_message)
+    user_id = session.get("user_id")
+    is_guest = session.get("is_guest", False)
 
-    # Send this if updated or generated sequence
-    socketio.emit("update_sequence", get_sequence())
-    print("Updated sequence: ", get_sequence())
+    if not user_id and not is_guest:
+        session["is_guest"] = True
+        session["user_id"] = "guest_" + str(uuid.uuid4())  # Temporary guest ID
+    else:
+        db = get_db_session()
+        user_session = db.query(Session).filter_by(user_id=user_id).first()
+        if not user_session:
+            user_session = Session(user_id=user_id)
+            db.add(user_session)
+            db.commit()
+
+    ai_response = ask_agent(user_message, user_id)
+
+    if not is_guest:
+        chat_history_user = ChatHistory(session_id=user_session.id, message=user_message)
+        chat_history_ai = ChatHistory(session_id=user_session.id, message=ai_response)
+        db.add(chat_history_user)
+        db.add(chat_history_ai)
+        db.commit()
+        db.close()
+
+    # Emit the update_sequence event only to the relevant client
+    socketio.emit("update_sequence", get_sequence(), room=session.get("sid"))
     return jsonify({"message": ai_response})
 
 
@@ -44,6 +80,8 @@ def update_sequence():
 
     if isinstance(data, list):
         set_sequence(data)
+        # Emit the update_sequence event only to the relevant client
+        socketio.emit("update_sequence", get_sequence(), room=session.get("sid"))
         return jsonify({"message": "Sequence updated successfully"}), 200
     else:
         return jsonify({"error": "Invalid data format. Expected a list."}), 400
@@ -69,10 +107,7 @@ def signup():
     db.refresh(user)
     db.close()
 
-    return jsonify({
-            "message": "Sign up successful",
-            "username": user.username 
-        }), 201
+    return jsonify({"message": "Sign up successful", "username": user.username}), 201
 
 
 @app.route("/login", methods=["POST"])
@@ -83,11 +118,11 @@ def login():
 
     if user and user.check_password(data["password"]):
         session["user_id"] = user.id
+        user_session = db.query(Session).filter_by(user_id=user.id).first()
+        if user_session:
+            set_sequence(user_session.get_sequence())
         db.close()
-        return jsonify({
-            "message": "Login successful",
-            "username": user.username 
-        }), 200
+        return jsonify({"message": "Login successful", "username": user.username}), 200
     else:
         db.close()
         return jsonify({"error": "Invalid credentials"}), 401
@@ -95,8 +130,24 @@ def login():
 
 @app.route("/logout", methods=["POST"])
 def logout():
+    socketio.emit("logout", room=session.get("sid"))
     session.pop("user_id", None)
+    session.pop("is_guest", None)
+    session.pop("sid", None) 
     return jsonify({"message": "Logout successful"}), 200
+
+
+@app.route("/check-session", methods=["GET"])
+def check_session():
+    user_id = session.get("user_id")
+    db = get_db_session()
+    user = db.query(User).filter_by(id=user_id).first()
+    db.close()
+
+    if user:
+        return jsonify({"message": "User is logged in", "username": user.username}), 200
+    else:
+        return jsonify({"error": "User is not logged in"}), 401
 
 
 if __name__ == "__main__":

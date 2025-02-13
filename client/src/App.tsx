@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import Chatbox from "./Chatbox";
 import Workspace from "./Workspace";
 import AuthModal from "./AuthModal";
@@ -10,10 +11,36 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [user, setUser] = useState<{ username?: string; guest?: boolean } | null>(null);
 
+  useEffect(() => {
+    // Check if the user is already logged in
+    axios.get("http://localhost:8080/check-session", { withCredentials: true })
+      .then(response => {
+        if (response.data.username) {
+          setUser({ username: response.data.username });
+        }
+      })
+      .catch(error => {
+        console.error("Session check failed:", error);
+      });
+  }, []);
+
   const openAuthModal = (login: boolean) => {
     setIsLogin(login);
     setAuthModalOpen(true);
   };
+
+  const handleLogout = () => {
+    axios.post("http://localhost:8080/logout", {}, { withCredentials: true })
+      .then(() => {
+        setUser(null);
+        setSequence([]); 
+        setAuthModalOpen(false);
+      })
+      .catch(error => {
+        console.error("Logout failed:", error);
+      });
+  };
+
 
   return (
     <div className="app-container">
@@ -25,7 +52,10 @@ function App() {
             <button onClick={() => setUser({ guest: true })}>Continue as Guest</button>
           </>
         ) : (
-          <p className="welcome-message">Welcome, {user.username || "Guest"}!</p>
+          <>
+            <p className="welcome-message">Welcome, {user.username || "Guest"}!</p>
+            <button onClick={handleLogout}>Logout</button>
+          </>
         )}
       </div>
 

@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 from os import getenv
 from textwrap import dedent
 from socketio_instance import socketio
+from model import get_db_engine, User, Session
+from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 open_ai_api_key = getenv("OPENAI_API_KEY")
@@ -220,11 +222,12 @@ def get_number_of_steps(state: State, trialCount: int) -> int:
     response = llm.invoke(messages)
     try:
         sequence_length = int(response.content.split()[0])
+        return sequence_length
     except ValueError:
         if trialCount > 4:
-            return ValueError("Can't convert response to a number")
-        sequence_length = get_number_of_steps(state, trialCount + 1)
-    return sequence_length
+            raise ValueError("Can't convert response to a number, the llm responded with: " + response.content)
+        else:
+            return get_number_of_steps(state, trialCount + 1)
 
 
 graph_builder = StateGraph(State)
@@ -256,13 +259,24 @@ graph_builder.add_edge("gather_more_info", END)
 graph_builder.add_edge("create_or_edit_sequence", END)
 
 graph = graph_builder.compile(checkpointer=memory)
-graph.get_graph().draw_mermaid_png(output_file_path="state_graph.png")
+#graph.get_graph().draw_mermaid_png(output_file_path="state_graph.png")
 
 
-def ask_agent(user_input: str) -> str:
+def get_user_info(user_id: int) -> str:
+    db = get_db_engine()
+    SessionLocal = sessionmaker(bind=db)
+    db_session = SessionLocal()
+    user = db_session.query(User).filter_by(id=user_id).first()
+    db_session.close()
+    if user:
+        return f"User: {user.username}, Company: {user.company}, Phone: {user.phone_number}"
+    return "User information not available"
+
+def ask_agent(user_input: str, user_id: int) -> str:
+    user_info = get_user_info(user_id)
     config = {"configurable": {"thread_id": "1"}}
     events = graph.stream(
-        {"messages": [{"role": "user", "content": user_input}]},
+        {"messages": [{"role": "user", "content": f"{user_info}\n{user_input}"}]},
         config,
         stream_mode="values",
     )
@@ -272,7 +286,6 @@ def ask_agent(user_input: str) -> str:
         last_message = event["messages"][-1].content
 
     return last_message if last_message else "No messages found"
-
 
 def set_sequence(new_sequence: List[str]):
     global sequence

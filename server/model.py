@@ -43,6 +43,8 @@ class Session(BaseModel):
         self.sequence = json.dumps(sequence_list)
 
     def get_sequence(self):
+        if self.sequence is None:
+            return []
         return json.loads(self.sequence)
 
 class ChatHistory(BaseModel):
