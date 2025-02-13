@@ -225,7 +225,8 @@ def get_number_of_steps(state: State, trialCount: int) -> int:
         return sequence_length
     except ValueError:
         if trialCount > 4:
-            raise ValueError("Can't convert response to a number, the llm responded with: " + response.content)
+            print("Can't convert response to a number, the llm responded with: " + response.content)
+            return 4 
         else:
             return get_number_of_steps(state, trialCount + 1)
 
