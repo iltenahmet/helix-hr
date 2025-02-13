@@ -7,6 +7,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from dotenv import load_dotenv
 from os import getenv
 from textwrap import dedent
+from socketio_instance import socketio
 
 load_dotenv()
 open_ai_api_key = getenv("OPENAI_API_KEY")
@@ -20,10 +21,13 @@ class State(TypedDict):
 
 
 def understand_user_intent(state: State):
-    prompt = {
-        "role": "system",
-        "content": "Does the user have any intent of creating or editing a recruiting sequence, plan, or an outreach workflow? Respond with Yes or No.",
-    }
+    information = dedent(
+        """\
+        You are an AI assistant for a recruiting platform. Your task is to assist users in creating or editing recruiting sequences, plans, or outreach workflows.
+        Does the user have any intent of creating or editing a recruiting sequence, plan, or an outreach workflow? Respond with Yes or No.
+        """
+    )
+    prompt = {"role": "system", "content": information}
     messages = state["messages"] + [prompt]
     response = llm.invoke(messages)
     print("Response: ", response.content)
@@ -79,7 +83,7 @@ def route_on_info_sufficiency(state: State):
 def gather_more_info(state: State):
     prompt = {
         "role": "system",
-        "content": "What additional details do you not have to generate a recruiting sequence? Respond to last user prompt and instruct the user to input the additional details you need.",
+        "content": "What additional details do you not have to generate a recruiting sequence? Ask a brief question to the user.",
     }
     messages = state["messages"] + [prompt]
     response = llm.invoke(messages)
@@ -104,6 +108,7 @@ def create_or_edit_sequence(state: State):
 def create_sequence(state: State):
     global sequence
     sequence_length = get_number_of_steps(state, 0)
+    socketio.emit("sequence_status", {"status": "generating"})
 
     for i in range(sequence_length):
         previous_steps_text = ""
@@ -135,6 +140,12 @@ def create_sequence(state: State):
         state["messages"].append(response)
         sequence.append(response.content.strip())
 
+        socketio.emit(
+            "sequence_step", {"stepNumber": i + 1, "stepText": response.content.strip()}
+        )
+
+    socketio.emit("sequence_done", {"sequence": sequence})
+
     return {
         "messages": state["messages"]
         + [{"role": "assistant", "content": "Here is your recruiting sequence."}]
@@ -143,20 +154,15 @@ def create_sequence(state: State):
 
 def edit_sequence(state: State):
     global sequence
-    # The user's edit request is typically the last message
     user_message = state["messages"][-1].content
     print("User message: ", user_message)
 
-    # Convert your existing sequence into a textual representation
-    # so the LLM can see it. For example:
+    socketio.emit("sequence_status", {"status": "editing"})
+
     existing_sequence_text = "\n\n".join(
         [f"STEP {idx+1}:\n{step}" for idx, step in enumerate(sequence)]
     )
 
-    # Prepare a system-level prompt that shows:
-    #   - The current steps
-    #   - The user's requested edits
-    #   - Clear instructions to produce a new updated sequence
     instructions = dedent(
         f"""\
         You have an existing email sequence, composed of multiple steps in a single email.
@@ -188,29 +194,20 @@ def edit_sequence(state: State):
     messages = state["messages"] + [{"role": "system", "content": instructions}]
     response = llm.invoke(messages)
 
-    # Now we must parse the LLM's new steps from response.content
-    # Typically, you can store them just as a raw string, or do some
-    # light parsing to split them into a list. For example:
     updated_text = response.content.strip()
     print("Updated text: ", updated_text)
 
-    # Optionally parse by "STEP X:" lines:
     new_steps = []
-    # A very naive parse example (depends on how you expect the model to respond)
     parts = updated_text.split("STEP ")
     for part in parts:
-        # skip empty or preamble
         if not part.strip():
             continue
-        # Remove the step number prefix from the raw text
-        # e.g. "1:\nHere is the new text..."
         step_num, step_body = part.split(":", 1)
         new_steps.append(step_body.strip())
 
-    # Overwrite the global sequence with this newly parsed sequence
     sequence = new_steps
+    socketio.emit("sequence_done", {"sequence": sequence})
 
-    # Return a final message confirming
     return {
         "messages": state["messages"]
         + [{"role": "assistant", "content": "Your sequence has been updated."}]

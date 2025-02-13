@@ -1,13 +1,13 @@
 from typing import List
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
 from agent import ask_agent, set_sequence, get_sequence
+from socketio_instance import socketio
 
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio.init_app(app, cors_allowed_origins="*")
 
 
 @app.route("/api/chat", methods=["POST"])

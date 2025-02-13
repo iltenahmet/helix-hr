@@ -20,20 +20,61 @@ function Workspace({ sequence }: WorkspaceProps) {
         console.error("Error fetching sequence:", error);
       }
     };
-
     fetchSequence();
 
-    // Listen for sequence updates via SocketIO
+    // 1) update_sequence: we keep this so if the server fires it at any point
+    // we get the entire updated sequence
     socket.on("update_sequence", (updatedSequence: string[]) => {
       console.log("Received updated sequence from SocketIO:", updatedSequence);
       setLocalSequence(updatedSequence);
     });
 
-    // Cleanup socket listener
+    // 2) partial steps as they come in
+    socket.on("sequence_step", (data) => {
+      // data = { stepNumber, stepText }
+      // Because steps come in order, we can:
+      setLocalSequence((prev) => {
+        // If the stepNumber is exactly prev.length + 1, we append
+        // or you could just append blindly, but let's do it carefully
+        const newSequence = [...prev];
+        const index = data.stepNumber - 1;
+        // Ensure it fits in the array. If not, expand it
+        if (newSequence.length < index) {
+          // fill the gap if needed (rare case)
+          while (newSequence.length < index) {
+            newSequence.push("");
+          }
+        }
+        // Insert or replace the step
+        newSequence[index] = data.stepText;
+        return newSequence;
+      });
+    });
+
+    // 3) final creation or editing
+    socket.on("sequence_done", (data) => {
+      // data = { sequence }
+      setLocalSequence(data.sequence);
+    });
+
+    socket.on("sequence_edited", (data) => {
+      // data = { updatedSequence }
+      setLocalSequence(data.updatedSequence);
+    });
+
     return () => {
       socket.off("update_sequence");
+      socket.off("sequence_step");
+      socket.off("sequence_done");
+      socket.off("sequence_edited");
     };
   }, []);
+
+  // keep localSequence in sync if the parent prop "sequence" changes
+  // e.g. if the user receives an entire new sequence from the Chatbox
+  useEffect(() => {
+    setLocalSequence(sequence);
+  }, [sequence]);
 
   const updateSequence = async (index: number, newText: string) => {
     const updatedSequence = localSequence.map((stepText, i) =>
@@ -66,6 +107,6 @@ function Workspace({ sequence }: WorkspaceProps) {
       </div>
     </div>
   );
-};
+}
 
 export default Workspace;
