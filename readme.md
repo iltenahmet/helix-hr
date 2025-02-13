@@ -24,6 +24,7 @@ Ensure you have the following installed on your machine:
    ```sh
    npm run dev
    ```
+4. To navigate to the frontend display, open the address displayed after running the previous step on your browser. 
 
 ### Running the Server (Backend)
 1. Open a separate terminal window.
@@ -52,6 +53,3 @@ Ensure you have the following installed on your machine:
    python3 app.py
    ```
 
-### Open the App
-Once the app is running, open your browser and navigate to:
-   [http://localhost:5174/](http://localhost:5174/)

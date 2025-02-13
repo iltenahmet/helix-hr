@@ -5,3 +5,4 @@ flask-socketio
 python-dotenv
 langgraph
 langchain-openai
+sqlalchemy
