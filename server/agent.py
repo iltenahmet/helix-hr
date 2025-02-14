@@ -102,8 +102,10 @@ def get_last_user_message(state: State) -> str:
 def create_or_edit_sequence(state: State):
     global sequence
     if sequence == []:
+        print("create")
         return create_sequence(state)
     else:
+        print("edit")
         return edit_sequence(state)
 
 
@@ -136,6 +138,7 @@ def create_sequence(state: State):
         """
         )
 
+        print(instructions)
         messages = state["messages"] + [{"role": "system", "content": instructions}]
         response = llm.invoke(messages)
 
@@ -156,9 +159,6 @@ def create_sequence(state: State):
 
 def edit_sequence(state: State):
     global sequence
-    user_message = state["messages"][-1].content
-    print("User message: ", user_message)
-
     socketio.emit("sequence_status", {"status": "editing"})
 
     existing_sequence_text = "\n\n".join(
@@ -171,9 +171,6 @@ def edit_sequence(state: State):
         Below is the CURRENT sequence:
 
         {existing_sequence_text}
-
-        The user wants to make edits or changes as described here:
-        "{user_message}"
 
         Please produce a NEW version of the sequence that incorporates these edits.
         
@@ -197,7 +194,6 @@ def edit_sequence(state: State):
     response = llm.invoke(messages)
 
     updated_text = response.content.strip()
-    print("Updated text: ", updated_text)
 
     new_steps = []
     parts = updated_text.split("STEP ")
